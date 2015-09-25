@@ -24,9 +24,7 @@ async.series([
 function createAccount(cb) {
   account = new Account();
   account.balance = 'f00000000000000001';
-  var buf = new Buffer(accountAddress, 'hex');
-  console.log(buf.toString('hex'));
-  vm.trie.put(buf, account.serialize(), cb);
+  vm.trie.put(new Buffer(accountAddress, 'hex'), account.serialize(), cb);
 }
 
 function runTx(cb) {
