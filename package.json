@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "async": "^1.4.2",
+    "ethereumjs-account": "^1.0.3",
+    "ethereumjs-tx": "^0.6.7",
+    "ethereumjs-vm": "git+https://github.com/ethereum/ethereumjs-vm.git",
+    "merkle-patricia-tree": "^2.0.3",
+    "sha3": "^1.2.0"
+  }
+}
