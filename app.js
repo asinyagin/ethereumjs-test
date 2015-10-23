@@ -11,29 +11,29 @@ var account1 = {
 };
 
 /*
-contract Contract2 {
-    uint i;
-    function Contract2() {
-        i = 1;
+contract Predefined {
+    
+    function test() {
+        
     }
 }
 */
 var account2 = {
-  address: new Buffer('985509582b2c38010bfaa3c8d2be60022d3d00da', 'hex'),
-  code: new Buffer('60606040525b60016000600050819055505b600a80601e6000396000f30060606040526008565b00', 'hex')
+  address: new Buffer('084f6a99003dae6d3906664fdbf43dd09930d0e3', 'hex'),
+  code: new Buffer('606060405260478060106000396000f360606040526000357c010000000000000000000000000000000000000000000000000000000090048063f8a8fd6d146037576035565b005b604260048050506044565b005b5b56', 'hex')
 };
 
-
 /*
-contract Contract {
-    function test(uint i) returns (uint) {
-        return i;
+contract C2 {
+
+    function C2() {
+        Predefined(0x084f6a99003dae6d3906664fdbf43dd09930d0e3).test();
     }
 }
-*/
-var account3 = {
-  code: new Buffer('6060604052606a8060116000396000f30060606040526000357c01000000000000000000000000000000000000000000000000000000009004806329e99f07146037576035565b005b6046600480359060200150605c565b6040518082815260200191505060405180910390f35b60008190506065565b91905056', 'hex')
-}
+ */
+var tx ={
+  data: new Buffer('60606040525b73084f6a99003dae6d3906664fdbf43dd09930d0e373ffffffffffffffffffffffffffffffffffffffff1663f8a8fd6d604051817c01000000000000000000000000000000000000000000000000000000000281526004018090506000604051808303816000876161da5a03f1156002575050505b600a8060866000396000f360606040526008565b00', 'hex')
+};
 
 var vm = new VM(new Trie());
 
@@ -43,7 +43,7 @@ async.series([
   runTx,
   printAccounts
 ], function(err) {
-  if (err) console.error(err);
+  if (err) console.error('err: ' + err);
 });
 
 function createAccount(cb) {
@@ -53,40 +53,43 @@ function createAccount(cb) {
 }
 
 function runCode(cb) {
-  var account = new Account();
-  
   vm.runCode({
     code: account2.code,
     data: account2.code,
-    account: account,
     gasLimit: 3141592,
     address: account2.address,
     caller: account1.address
   }, function(err, result) {
     if (err) return cb(err);
-    account.setCode(vm.trie, result.return, function(err) {
-      if (err) cb(err);
-      else vm.trie.put(account2.address, account.serialize(), cb);
+    vm.trie.get(account2.address, function(err, data) {
+      if (err) return cb(err);
+      var account = new Account(data);
+      account.setCode(vm.trie, result.return, function(err) {
+        if (err) cb(err);
+        else vm.trie.put(account2.address, account.serialize(), cb);
+      });
     });
   });
 }
 
 function runTx(cb) {
-  var tx = new Transaction({
+  var t = new Transaction({
     gasLimit: 3141592,
     gasPrice: 1,
-    data: account3.code
+    data: tx.data
   });
-  tx.sign(account1.key);
-  vm.runTx({ tx: tx }, cb);
+  t.sign(account1.key);
+  vm.runTx({ tx: t }, cb);
 }
 
 function printAccounts(cb) {
   var stream = vm.trie.createReadStream();
   stream.on('data', function(data) {
-    new Account(data.value).getCode(vm.trie, function(err, code) {
+    var address = data.key;
+    var account = new Account(data.value);
+    account.getCode(vm.trie, function(err, code) {
       if (err) console.error(err);
-      else console.log(data.key.toString('hex') + ': ' + code.toString('hex'));
+      else console.log(address.toString('hex') + ': ' + code.toString('hex'));
     });
   });
   stream.on('end', cb);
