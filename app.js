@@ -34,7 +34,7 @@ async.waterfall([
 
 
 function createVM(cb) {
-  cb(null, { vm: new VM(new Trie()) });
+  cb(null, { vm: new VM(new Trie(), null, { activatePrecompiles: true }) });
 }
 
 function createAccount(params, cb) {

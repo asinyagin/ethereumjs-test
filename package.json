@@ -3,7 +3,7 @@
     "async": "^2.0.0-rc.5",
     "ethereumjs-account": "^2.0.2",
     "ethereumjs-tx": "*",
-    "ethereumjs-vm": "*",
+    "ethereumjs-vm": "git+https://github.com/ethereumjs/ethereumjs-vm.git",
     "merkle-patricia-tree": "^2.1.2",
     "sha3": "^1.2.0"
   }
